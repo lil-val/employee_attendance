@@ -1,4 +1,4 @@
-import final_ex.sql.attendance_functions_sql as funcs
+import employees_attendance.sql.attendance_functions_sql as funcs
 import sys
 
 

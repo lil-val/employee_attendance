@@ -1,4 +1,4 @@
-import final_ex.csv.attendance_functions as funcs
+import employees_attendance.csv.attendance_functions as funcs
 
 
 manual_options = {1: 'Add employee manually', 2: 'Add employees from file', 3: 'Delete employee manually',
