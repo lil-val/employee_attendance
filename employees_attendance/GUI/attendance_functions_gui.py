@@ -500,6 +500,6 @@ class GUI:
                   font=('Times New Roman', 12)).pack()
         ttk.Label(self.top_level, background='light blue', text="by Lilach Vald-Levi",
                   font=('Times New Roman', 12)).pack()
-        self.top_level.after(2000, self.top_level.destroy)
+        self.top_level.after(5000, self.top_level.destroy)
 
 

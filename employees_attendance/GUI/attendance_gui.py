@@ -1,5 +1,4 @@
 import employees_attendance.GUI.attendance_functions_gui as funcs
-# import sys
 from tkinter import *
 
 
