@@ -1,24 +1,23 @@
 from datetime import datetime
 import csv
-import MySQLdb
+import mysql.connector
+from mysql.connector import Error
 from tkinter import *
 from tkinter import ttk, messagebox, colorchooser
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 db = None
 employee_fields = ['employee_id', 'name', 'age', 'phone']
-
-employee_fields = ['employee_id', 'name', 'age', 'phone']
 attendance_fields = ['employee_id', 'timestamp']
 
 
 def init(hostname, port, user_name, password, scheme):
     global db
-    db = MySQLdb.connect(host=hostname, port=port, user=user_name, passwd=password, db=scheme)
+    db = mysql.connector.connect(host=hostname, port=port, user=user_name, password=password, database=scheme)
 
 
 def get_employee_from_db(employee_id):
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor()
     cursor.execute('SELECT * FROM employees WHERE employee_id = %s;', (employee_id,))
     result = cursor.fetchone()
     if result:
@@ -42,7 +41,7 @@ def get_employees_from_file(file_name='employees.csv'):
 
 def get_employees_from_db():
     employees = {}
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     cursor.execute('SELECT * FROM employees;')
     result = cursor.fetchall()
     for employee in result:
@@ -88,7 +87,7 @@ def add_employee(employee_id, name, age, phone):
                        "VALUES (%s, %s, %s, %s);", (employee_id, name, age, phone))
         db.commit()
         return True
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         messagebox.showerror(message=e)
         return False
@@ -109,7 +108,7 @@ def add_employees_from_file(file_name):
                            (emp['employee_id'], emp['name'], emp['age'], emp['phone']))
         db.commit()
         return True
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         messagebox.showerror(message=e)
         return False
@@ -132,7 +131,7 @@ def delete_employee(employee_id):
         cursor.execute("DELETE FROM employees WHERE employee_id = %s;", (employee_id,))
         db.commit()
         return True
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         messagebox.showerror(message=e)
         return False
@@ -151,7 +150,7 @@ def delete_employees_from_file(file_name):
             cursor.execute("DELETE FROM employees WHERE employee_id = %s;", (emp['employee_id'],))
         db.commit()
         return True
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         messagebox.showerror(message=e)
         return False
@@ -174,7 +173,7 @@ def mark_attendance(employee_id):
                        "VALUES (%s, CURRENT_TIMESTAMP());", (employee_id,))
         db.commit()
         return True
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         messagebox.showerror(message=e)
         return False
@@ -191,11 +190,11 @@ def employee_report(employee_id):
         messagebox.showerror(message="Please make sure to enter only digits!")
         return False
 
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE employee_id = %s;", (employee_id,))
         result = cursor.fetchall()
-    except MySQLdb.Error as e:
+    except Error as e:
         messagebox.showerror(message=e)
         return False
     try:
@@ -209,13 +208,13 @@ def employee_report(employee_id):
 
 
 def monthly_report():
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE timestamp BETWEEN "
                        "DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01 00:00:00') AND "
                        "DATE_FORMAT(LAST_DAY(NOW() - INTERVAL 1 MONTH), '%Y-%m-%d 23:59:59')")
         result = cursor.fetchall()
-    except MySQLdb.Error as e:
+    except Error as e:
         messagebox.showerror(message=e)
         return False
     try:
@@ -229,11 +228,11 @@ def monthly_report():
 
 
 def late_report():
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE time(timestamp) > '09:30:00';")
         result = cursor.fetchall()
-    except MySQLdb.Error as e:
+    except Error as e:
         messagebox.showerror(message=e)
         return False
     try:
@@ -258,12 +257,12 @@ def report_at_specific_time(start_date, end_date):
         messagebox.showerror(message=e)
         return False
 
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE date(timestamp) "
                        "BETWEEN %s and %s;", (start_date, end_date,))
         result = cursor.fetchall()
-    except MySQLdb.Error as e:
+    except Error as e:
         messagebox.showerror(message=e)
         return False
     try:
@@ -485,17 +484,6 @@ class GUI:
         self.style.configure('TFrame', background=new_color)
         self.style.configure('TButton', background=new_color)
         self.style.configure('TLabel', background=new_color)
-
-    # def __change_font_size_top_level(self):
-    #     self.top_level = Toplevel()
-    #     self.top_level_frame = ttk.Frame(self.top_level)
-    #     self.top_level_frame.pack()
-    #     self.top_level.title('Font size')
-    #     self.top_level.resizable(False, False)
-    #     ttk.Label(self.top_level_frame, text="Font size:").grid(row=0, column=0, padx=10, pady=25)
-    #     self.new_font_size = IntVar()
-    #     ttk.Entry(self.top_level_frame, textvariable=self.new_font_size).grid(row=0, column=1, padx=10, pady=25)
-    #     ttk.Button(self.top_level_frame, text="Set", command=self.__change_font_size).grid(row=0, column=2, padx=10, pady=25)
 
     def __change_font_size(self):
         self.style.configure('TButton', font=('Arial', self.choice.get()))
