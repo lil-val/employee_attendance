@@ -10,7 +10,6 @@ class View:
         master.configure(background='#e1d8b9')
         self.control = control
 
-        self.style = ttk.Style()  # check if instead self.style we can changed ti ttk.Style().configure...
         self.color = '#e1d8b9'
         self.__change_color()
 
@@ -22,12 +21,16 @@ class View:
         ttk.Label(top_frame, text="Insert employee id:").grid(row=0, column=0, padx=10, pady=30)
         emp_id_entry = ttk.Entry(top_frame, textvariable=self.employee_id)
         emp_id_entry.grid(row=0, column=1, padx=10, pady=30)
-        ttk.Button(top_frame, text="Mark attendance", command=self.__mark_attendance).grid(row=0, column=2, padx=10, pady=30)
+        ttk.Button(top_frame, text="Mark attendance", command=self.__mark_attendance).grid(row=0, column=2, padx=10,
+                                                                                           pady=30)
 
         bottom_frame = ttk.Frame(panedwindow, width=400, height=50, relief=SUNKEN)
-        ttk.Button(bottom_frame, text='Add employee', command=self.__add_employee_top_level).grid(row=0, column=0, padx=25, pady=15)
-        ttk.Button(bottom_frame, text='Delete employee', command=self.__delete_employee_top_level).grid(row=0, column=1, pady=15)
-        ttk.Button(bottom_frame, text='Employees list', command=self.__employees_list).grid(row=0, column=2, padx=25, pady=15)
+        ttk.Button(bottom_frame, text='Add employee', command=self.__add_employee_top_level).grid(row=0, column=0,
+                                                                                                  padx=25, pady=15)
+        ttk.Button(bottom_frame, text='Delete employee', command=self.__delete_employee_top_level).grid(row=0, column=1,
+                                                                                                        pady=15)
+        ttk.Button(bottom_frame, text='Employees list', command=self.__employees_list).grid(row=0, column=2, padx=25,
+                                                                                            pady=15)
 
         panedwindow.add(top_frame)
         panedwindow.add(bottom_frame)
@@ -87,14 +90,19 @@ class View:
         self.new_employee_age = StringVar()
         self.new_employee_phone = StringVar()
         ttk.Label(top_level_frame, text="ID:").grid(row=0, column=0, padx=10, pady=10, sticky='sw')
-        ttk.Entry(top_level_frame, textvariable=self.new_employee_id).grid(row=0, column=1, padx=10)
+        self.new_employee_id_entry = Entry(top_level_frame, textvariable=self.new_employee_id)
+        self.new_employee_id_entry.grid(row=0, column=1, padx=10)
         ttk.Label(top_level_frame, text="Name:").grid(row=1, column=0, padx=10, pady=10, sticky='sw')
-        ttk.Entry(top_level_frame, textvariable=self.new_employee_name).grid(row=1, column=1, padx=10)
+        self.new_name_entry = Entry(top_level_frame, textvariable=self.new_employee_name)
+        self.new_name_entry.grid(row=1, column=1, padx=10)
         ttk.Label(top_level_frame, text="Age:").grid(row=2, column=0, padx=10, pady=10, sticky='sw')
-        ttk.Entry(top_level_frame, textvariable=self.new_employee_age).grid(row=2, column=1, padx=10)
+        self.new_age_entry = Entry(top_level_frame, textvariable=self.new_employee_age)
+        self.new_age_entry.grid(row=2, column=1, padx=10)
         ttk.Label(top_level_frame, text="Phone:").grid(row=3, column=0, padx=10, pady=10, sticky='sw')
-        ttk.Entry(top_level_frame, textvariable=self.new_employee_phone).grid(row=3, column=1, padx=10)
-        ttk.Button(top_level_frame, text="Add", command=self.__add_employee).grid(row=4, pady=10, column=0, columnspan=2)
+        self.new_phone_entry = Entry(top_level_frame, textvariable=self.new_employee_phone)
+        self.new_phone_entry.grid(row=3, column=1, padx=10)
+        ttk.Button(top_level_frame, text="Add", command=self.__add_employee).grid(row=4, pady=10, column=0,
+                                                                                  columnspan=2)
 
     def __add_employee(self):
         if self.control.add_employee(self.new_employee_id.get(), self.new_employee_name.get(),
@@ -103,10 +111,24 @@ class View:
             self.top_level.destroy()
         else:
             self.top_level.focus_set()
-            self.new_employee_id.set('')
-            self.new_employee_name.set('')
-            self.new_employee_age.set('')
-            self.new_employee_phone.set('')
+            if len(self.new_employee_id_entry.get()) != 6 or any(
+                    not c.isdigit() for c in self.new_employee_id_entry.get()):
+                self.new_employee_id_entry.config(fg='red')
+            else:
+                self.new_employee_id_entry.config(fg='black')
+            if self.new_name_entry.get() == '' or any(c.isdigit() for c in self.new_name_entry.get()):
+                self.new_name_entry.config(fg='red')
+            else:
+                self.new_name_entry.config(fg='black')
+            if self.new_age_entry.get() == '' or any(not c.isdigit() for c in self.new_age_entry.get()) or int(
+                    self.new_age_entry.get()) < 18:
+                self.new_age_entry.config(fg='red')
+            else:
+                self.new_age_entry.config(fg='black')
+            if len(self.new_phone_entry.get()) != 10 or any(not c.isdigit() for c in self.new_phone_entry.get()):
+                self.new_phone_entry.config(fg='red')
+            else:
+                self.new_phone_entry.config(fg='black')
 
     def __add_employees_from_file(self):
         filename = askopenfilename()
@@ -122,7 +144,8 @@ class View:
         ttk.Label(top_level_frame, text="Insert employee id:").grid(row=0, column=0, padx=10, pady=25)
         self.employee_to_delete = StringVar()
         ttk.Entry(top_level_frame, textvariable=self.employee_to_delete).grid(row=0, column=1, padx=10, pady=25)
-        ttk.Button(top_level_frame, text="Delete", command=self.__delete_employee).grid(row=0, column=2, padx=10, pady=25)
+        ttk.Button(top_level_frame, text="Delete", command=self.__delete_employee).grid(row=0, column=2, padx=10,
+                                                                                        pady=25)
 
     def __delete_employee(self):
         if self.control.delete_employee(self.employee_to_delete.get()):
@@ -130,7 +153,6 @@ class View:
             self.top_level.destroy()
         else:
             self.top_level.focus_set()
-        self.employee_to_delete.set('')
 
     def __delete_employees_from_file(self):
         filename = askopenfilename()
@@ -146,15 +168,17 @@ class View:
         ttk.Label(top_level_frame, text="Insert employee id:").grid(row=0, column=0, padx=10, pady=25)
         self.employee_for_report = StringVar()
         ttk.Entry(top_level_frame, textvariable=self.employee_for_report).grid(row=0, column=1, padx=10, pady=25)
-        ttk.Button(top_level_frame, text="Issue report", command=self.__employee_report).grid(row=0, column=2, padx=10, pady=25)
+        ttk.Button(top_level_frame, text="Issue report", command=self.__employee_report).grid(row=0, column=2, padx=10,
+                                                                                              pady=25)
+        self.top_level.bind('<Return>', self.__employee_report)
 
     def __employee_report(self):
         if self.control.employee_report(self.employee_for_report.get()):
-            self.status_text.set("Employee report was issued and saved for employee {}".format(self.employee_for_report.get()))
+            self.status_text.set("Employee report was issued and saved for employee {}"
+                                 .format(self.employee_for_report.get()))
             self.top_level.destroy()
         else:
             self.top_level.focus_set()
-        self.employee_for_report.set('')
 
     def __monthly_report(self):
         if self.control.monthly_report():
@@ -186,41 +210,59 @@ class View:
             self.top_level.destroy()
         else:
             self.top_level.focus_set()
-        self.start_date.set('')
-        self.end_date.set('')
 
     def __employees_list(self):
         self.top_level = Toplevel()
-        top_level_frame = ttk.Frame(self.top_level)
-        top_level_frame.pack()
+        self.top_level.geometry('470x500')
+
+        top_level_canvas = Canvas(self.top_level)
+        top_level_frame = ttk.Frame(top_level_canvas)
+        scrollbar = ttk.Scrollbar(self.top_level, orient=VERTICAL, command=top_level_canvas.yview)
+        top_level_canvas.configure(yscrollcommand=scrollbar.set)
+        top_level_canvas.pack(side=LEFT, fill='both', expand=True)
+        scrollbar.pack(side=RIGHT, fill='y')
+        top_level_canvas.create_window((5, 5), window=top_level_frame, anchor=NW)
+
         self.top_level.title('Employees List')
-        ttk.Label(top_level_frame, text="Record id").grid(row=0, column=0, padx=5, pady=5, sticky='w')
-        ttk.Label(top_level_frame, text="Employee id").grid(row=0, column=1, padx=5, pady=5, sticky='w')
-        ttk.Label(top_level_frame, text="Name").grid(row=0, column=2, padx=5, pady=5, sticky='w')
-        ttk.Label(top_level_frame, text="Age").grid(row=0, column=3, padx=5, pady=5, sticky='w')
-        ttk.Label(top_level_frame, text="Phone").grid(row=0, column=4, padx=5, pady=5, sticky='w')
+        ttk.Label(top_level_frame, text="Record id").grid(row=0, column=0, padx=10, pady=5, sticky='w')
+        ttk.Label(top_level_frame, text="Employee id").grid(row=0, column=1, padx=10, pady=5, sticky='w')
+        ttk.Label(top_level_frame, text="Name").grid(row=0, column=2, padx=10, pady=5, sticky='w')
+        ttk.Label(top_level_frame, text="Age").grid(row=0, column=3, padx=10, pady=5, sticky='w')
+        ttk.Label(top_level_frame, text="Phone").grid(row=0, column=4, padx=10, pady=5, sticky='w')
         employees = self.control.get_employees_from_db()
         counter = 1
         for employee in employees.values():
-            ttk.Label(top_level_frame, text=counter).grid(row=counter, column=0, padx=5, pady=5, sticky='w')
-            ttk.Label(top_level_frame, text=(employee['employee_id'])).grid(row=counter, column=1, padx=5, pady=5, sticky='w')
-            ttk.Label(top_level_frame, text=(employee['name'])).grid(row=counter, column=2, padx=5, pady=5, sticky='w')
-            ttk.Label(top_level_frame, text=(employee['age'])).grid(row=counter, column=3, padx=5, pady=5, sticky='w')
-            ttk.Label(top_level_frame, text=(employee['phone'])).grid(row=counter, column=4, padx=5, pady=5, sticky='w')
+            ttk.Label(top_level_frame, text=counter).grid(row=counter, column=0, padx=10, pady=5, sticky='nsew')
+            ttk.Label(top_level_frame, text=(employee['employee_id'])).grid(row=counter, column=1, padx=10, pady=5,
+                                                                            sticky='nsew')
+            ttk.Label(top_level_frame, text=(employee['name'])).grid(row=counter, column=2, padx=10, pady=5,
+                                                                     sticky='nsew')
+            ttk.Label(top_level_frame, text=(employee['age'])).grid(row=counter, column=3, padx=10, pady=5,
+                                                                    sticky='nsew')
+            ttk.Label(top_level_frame, text=(employee['phone'])).grid(row=counter, column=4, padx=10, pady=5,
+                                                                      sticky='nsew')
             counter += 1
+        if self.font_size.get() == 12:
+            top_level_canvas.configure(scrollregion=(0, 0, 1000, (counter * 32)))
+        elif self.font_size.get() == 10:
+            top_level_canvas.configure(scrollregion=(0, 0, 1000, (counter * 30)))
+            self.top_level.geometry('400x500')
+        else:
+            top_level_canvas.configure(scrollregion=(0, 0, 1000, (counter * 37)))
+            self.top_level.geometry('540x600')
 
     def __choose_color(self):
         self.color = colorchooser.askcolor(initialcolor=self.color)[1]
         self.__change_color()
 
     def __change_color(self):
-        self.style.configure('TFrame', background=self.color)
-        self.style.configure('TButton', background=self.color)
-        self.style.configure('TLabel', background=self.color)
+        ttk.Style().configure('TFrame', background=self.color)
+        ttk.Style().configure('TButton', background=self.color)
+        ttk.Style().configure('TLabel', background=self.color)
 
     def __change_font_size(self):
-        self.style.configure('TButton', font=('Arial', self.font_size.get()))
-        self.style.configure('TLabel', font=('Arial', self.font_size.get()))
+        ttk.Style().configure('TButton', font=('Arial', self.font_size.get()))
+        ttk.Style().configure('TLabel', font=('Arial', self.font_size.get()))
 
     def __about(self):
         self.top_level = Toplevel()
@@ -234,4 +276,3 @@ class View:
         ttk.Label(self.top_level, background='light blue', text="by Lilach Vald-Levi",
                   font=('Times New Roman', 12)).pack()
         self.top_level.after(5000, self.top_level.destroy)
-

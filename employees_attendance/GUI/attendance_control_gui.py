@@ -50,35 +50,41 @@ class Control:
         return employees
 
     def add_employee(self, employee_id, name, age, phone):
+        valid_input = True
         if len(employee_id) != 6:
             messagebox.showerror(message="Please make sure to use only 6 digits id number!")
-            return False
+            valid_input = False
         if any(not c.isdigit() for c in employee_id):
             messagebox.showerror(message="Please make sure to enter only digits as id number!")
-            return False
+            valid_input = False
         if self.get_employee_from_db(employee_id) is not None:
             messagebox.showerror(message="This employee_id already exists")
             return
 
         if name == '':
             messagebox.showerror(message="Please make sure to enter employee name!")
-            return False
+            valid_input = False
         if any(c.isdigit() for c in name):
             messagebox.showerror(message="Please make sure that the employee name does not contain any digits")
-            return False
+            valid_input = False
 
-        if int(age) < 18:
-            messagebox.showerror(message="Please make sure to enter employee correct age!")
-            return False
-        if any(not c.isdigit() for c in age):
+        if age == '':
+            messagebox.showerror(message="Please make sure to enter employee age!")
+            valid_input = False
+        elif any(not c.isdigit() for c in age):
             messagebox.showerror(message="Please make sure to enter only digits as employee age!")
-            return False
+            valid_input = False
+        elif int(age) < 18:
+            messagebox.showerror(message="Please make sure to enter employee correct age!")
+            valid_input = False
 
         if len(phone) != 10:
             messagebox.showerror(message="Please make sure to use only 10 digits phone number!")
-            return False
+            valid_input = False
         if any(not c.isdigit() for c in phone):
             messagebox.showerror(message="Please make sure to enter only digits as phone number!")
+            valid_input = False
+        if not valid_input:
             return False
 
         cursor = self.db.cursor()
@@ -134,7 +140,7 @@ class Control:
             messagebox.showerror(message=e)
             return False
 
-    def delete_employees_from_file(self,file_name):
+    def delete_employees_from_file(self, file_name):
         employees = self.get_employees_from_db()
         employees_from_file = get_employees_from_file(file_name)
         employees_to_delete = []
@@ -174,7 +180,7 @@ class Control:
             messagebox.showerror(message=e)
             return False
 
-    def employee_report(self,employee_id):
+    def employee_report(self, employee_id):
         if len(str(employee_id)) != 6:
             messagebox.showerror(message="Please make sure to use only 6 digits id number!")
             return False
@@ -187,7 +193,8 @@ class Control:
 
         cursor = self.db.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE employee_id = %s;", (employee_id,))
+            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE employee_id = %s;",
+                           (employee_id,))
             result = cursor.fetchall()
         except Error as e:
             messagebox.showerror(message=e)
@@ -223,7 +230,8 @@ class Control:
     def late_report(self):
         cursor = self.db.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE time(timestamp) > '09:30:00';")
+            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE"
+                           " time(timestamp) > '09:30:00';")
             result = cursor.fetchall()
         except Error as e:
             messagebox.showerror(message=e)
