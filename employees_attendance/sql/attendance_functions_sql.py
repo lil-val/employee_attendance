@@ -1,6 +1,7 @@
 from datetime import datetime
 import csv
-import MySQLdb
+import mysql.connector
+from mysql.connector import Error
 
 db = None
 employee_fields = ['employee_id', 'name', 'age', 'phone']
@@ -8,11 +9,11 @@ employee_fields = ['employee_id', 'name', 'age', 'phone']
 
 def init(hostname, port, user_name, password, scheme):
     global db
-    db = MySQLdb.connect(host=hostname, port=port, user=user_name, passwd=password, db=scheme)
+    db = mysql.connector.connect(host=hostname, port=port, user=user_name, passwd=password, db=scheme)
 
 
 def get_employee_from_db(employee_id):
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor()
     cursor.execute('SELECT * FROM employees WHERE employee_id = %s;', (employee_id,))
     result = cursor.fetchone()
     if result:
@@ -36,7 +37,7 @@ def get_employees_from_file(file_name='employees.csv'):
 
 def get_employees_from_db():
     employees = {}
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     cursor.execute('SELECT * FROM employees;')
     result = cursor.fetchall()
     for employee in result:
@@ -87,7 +88,7 @@ def add_employee():
         cursor.execute("INSERT INTO employees (`employee_id`, `name`, `age`, `phone`) "
                        "VALUES (%s, %s, %s, %s);", (employee_id, name, age, phone))
         db.commit()
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         print(e)
 
@@ -107,7 +108,7 @@ def add_employees_from_file():
             cursor.execute("INSERT INTO employees (`employee_id`, `name`, `age`, `phone`) VALUES (%s, %s, %s, %s);",
                            (emp['employee_id'], emp['name'], emp['age'], emp['phone']))
         db.commit()
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         print(e)
 
@@ -128,7 +129,7 @@ def delete_employee():
     try:
         cursor.execute("DELETE FROM employees WHERE employee_id = %s;", (employee_id,))
         db.commit()
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         print(e)
 
@@ -146,7 +147,7 @@ def delete_employees_from_file():
         for emp in employees_to_delete:
             cursor.execute("DELETE FROM employees WHERE employee_id = %s;", (emp['employee_id'],))
         db.commit()
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         print(e)
 
@@ -167,7 +168,7 @@ def mark_attendance():
         cursor.execute("INSERT INTO employees_attendance (`employee_id`, `timestamp`) "
                        "VALUES (%s, CURRENT_TIMESTAMP());", (employee_id,))
         db.commit()
-    except MySQLdb.Error as e:
+    except Error as e:
         db.rollback()
         print(e)
 
@@ -183,18 +184,18 @@ def employee_report():
         if any(not c.isdigit() for c in employee_id):
             print("Please make sure to enter only digits!")
 
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM employees_attendance WHERE employee_id = %s;", (employee_id,))
         result = cursor.fetchall()
         for line in result:
             print(line['timestamp'])
-    except MySQLdb.Error as e:
+    except Error as e:
         print(e)
 
 
 def monthly_report():
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM employees_attendance WHERE timestamp BETWEEN DATE_FORMAT(NOW() - INTERVAL 1 "
                        "MONTH, '%Y-%m-01 00:00:00') AND DATE_FORMAT(LAST_DAY(NOW() - INTERVAL 1 MONTH), "
@@ -202,18 +203,18 @@ def monthly_report():
         result = cursor.fetchall()
         for line in result:
             print(line['employee_id'], line['timestamp'])
-    except MySQLdb.Error as e:
+    except Error as e:
         print(e)
 
 
 def late_report():
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM employees_attendance WHERE time(timestamp) > '09:30:00';")
         result = cursor.fetchall()
         for line in result:
             print(line['employee_id'], line['timestamp'])
-    except MySQLdb.Error as e:
+    except Error as e:
         print(e)
 
 
@@ -235,12 +236,12 @@ def report_at_specific_time():
             print('invalid date')
             end_date = ''
 
-    cursor = db.cursor(MySQLdb.cursors.DictCursor)
+    cursor = db.cursor(dictionary=True)
     try:
         cursor.execute("SELECT * FROM employees_attendance WHERE date(timestamp) BETWEEN %s and %s;",
                        (start_date, end_date,))
         result = cursor.fetchall()
         for line in result:
             print(line['employee_id'], line['timestamp'])
-    except MySQLdb.Error as e:
+    except Error as e:
         print(e)
