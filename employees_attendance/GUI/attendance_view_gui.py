@@ -213,7 +213,7 @@ class View:
 
     def __employees_list(self):
         self.top_level = Toplevel()
-        self.top_level.geometry('470x500')
+        self.top_level.geometry('580x600')
 
         top_level_canvas = Canvas(self.top_level)
         top_level_frame = ttk.Frame(top_level_canvas)
@@ -246,10 +246,10 @@ class View:
             top_level_canvas.configure(scrollregion=(0, 0, 1000, (counter * 32)))
         elif self.font_size.get() == 10:
             top_level_canvas.configure(scrollregion=(0, 0, 1000, (counter * 30)))
-            self.top_level.geometry('400x500')
+            self.top_level.geometry('500x600')
         else:
             top_level_canvas.configure(scrollregion=(0, 0, 1000, (counter * 37)))
-            self.top_level.geometry('540x600')
+            self.top_level.geometry('670x600')
 
     def __choose_color(self):
         self.color = colorchooser.askcolor(initialcolor=self.color)[1]
