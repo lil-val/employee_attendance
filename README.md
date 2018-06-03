@@ -11,3 +11,4 @@ MySQL 5.6
 
 ## (2) My blog based on django
 My blog was created during django girls workshop.
+See https://lilachvald.pythonanywhere.com/
