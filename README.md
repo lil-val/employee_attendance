@@ -10,5 +10,5 @@ python 3.6 with mysql-connector-python 2.0.4
 MySQL 5.6
 
 ## (2) My blog based on django
-My blog was created during django girls workshop.
+My blog was created during django girls workshop. </br>
 See https://lilachvald.pythonanywhere.com/
