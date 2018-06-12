@@ -193,8 +193,8 @@ class Control:
 
         cursor = self.db.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE employee_id = %s;",
-                           (employee_id,))
+            cursor.execute("SELECT employee_id, DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%S') as timestamp FROM "
+                           "employees_attendance WHERE employee_id = %s;", (employee_id,))
             result = cursor.fetchall()
         except Error as e:
             messagebox.showerror(message=e)
@@ -211,9 +211,10 @@ class Control:
     def monthly_report(self):
         cursor = self.db.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE timestamp BETWEEN "
-                           "DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01 00:00:00') AND "
-                           "DATE_FORMAT(LAST_DAY(NOW() - INTERVAL 1 MONTH), '%Y-%m-%d 23:59:59')")
+            cursor.execute("SELECT employee_id, DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%S') as timestamp FROM "
+                           "employees_attendance WHERE timestamp BETWEEN DATE_FORMAT(NOW() - INTERVAL 1 MONTH, "
+                           "'%Y-%m-01 00:00:00') AND DATE_FORMAT(LAST_DAY(NOW() - INTERVAL 1 MONTH), "
+                           "'%Y-%m-%d 23:59:59')")
             result = cursor.fetchall()
         except Error as e:
             messagebox.showerror(message=e)
@@ -230,8 +231,8 @@ class Control:
     def late_report(self):
         cursor = self.db.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE"
-                           " time(timestamp) > '09:30:00';")
+            cursor.execute("SELECT employee_id, DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%S') as timestamp FROM "
+                           "employees_attendance WHERE time(timestamp) > '09:30:00';")
             result = cursor.fetchall()
         except Error as e:
             messagebox.showerror(message=e)
@@ -259,8 +260,8 @@ class Control:
 
         cursor = self.db.cursor(dictionary=True)
         try:
-            cursor.execute("SELECT employee_id, timestamp FROM employees_attendance WHERE date(timestamp) "
-                           "BETWEEN %s and %s;", (start_date, end_date,))
+            cursor.execute("SELECT employee_id, DATE_FORMAT(timestamp, '%Y-%m-%d %H:%i:%S') as timestamp FROM "
+                           "employees_attendance WHERE date(timestamp) BETWEEN %s and %s;", (start_date, end_date,))
             result = cursor.fetchall()
         except Error as e:
             messagebox.showerror(message=e)
