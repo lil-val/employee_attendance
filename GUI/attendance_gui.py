@@ -1,4 +1,4 @@
-from employees_attendance.GUI.attendance_control_gui import Control
+from GUI.attendance_control_gui import Control
 from tkinter import *
 
 

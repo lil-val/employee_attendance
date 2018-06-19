@@ -4,7 +4,7 @@ import mysql.connector
 from mysql.connector import Error
 from tkinter import messagebox
 from tkinter.filedialog import asksaveasfilename
-from employees_attendance.GUI.attendance_view_gui import View
+from GUI.attendance_view_gui import View
 
 
 employee_fields = ['employee_id', 'name', 'age', 'phone']

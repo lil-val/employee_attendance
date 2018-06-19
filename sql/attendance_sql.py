@@ -1,4 +1,5 @@
-import employees_attendance.csv.attendance_functions as funcs
+import sql.attendance_functions_sql as funcs
+import sys
 
 
 manual_options = {1: 'Add employee manually', 2: 'Add employees from file', 3: 'Delete employee manually',
@@ -7,7 +8,13 @@ manual_options = {1: 'Add employee manually', 2: 'Add employees from file', 3: '
                   10: 'Exit'}
 
 if __name__ == '__main__':
-    funcs.create_files()
+    if len(sys.argv) != 6:
+        print('Please run the script with the following arguments:'
+              'python attendance.py <hostname> <port> <user_name> <password> <scheme>')
+        sys.exit(1)  # 1 means with an error
+    funcs.init(sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5])
+    # sample command line: python attendance_gui.py localhost 3306 root root attendance
+    # tables will be created by DBA by db_script.sql
     print(manual_options)
     x = 0
     while x != 10:
